@@ -320,6 +320,9 @@ Continuar flujo
 
 ---
 
+LINK DE AIRTABLE
+https://airtable.com/invite/l?inviteId=invJZBb3iRveZo8ce&inviteToken=a680d2d4261971067864e00e4e58ccec00abdcdedee873bf0c76c26989cfb32b&utm_medium=email&utm_source=product_team&utm_content=transactional-alerts
+
 # 👨‍💻 Autor
 
 **Federico Ferreyra**
