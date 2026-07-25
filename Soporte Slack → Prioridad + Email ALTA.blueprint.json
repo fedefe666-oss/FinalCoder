@@ -1,0 +1,1906 @@
+{
+    "name": "Soporte Slack → Prioridad + Email ALTA",
+    "flow": [
+        {
+            "id": 3,
+            "module": "slack:WatchMessages",
+            "version": 4,
+            "parameters": {
+                "__IMTCONN__": 10034788,
+                "inputMethod": "list",
+                "channel": "C0BKV3YJU5N",
+                "limit": 2,
+                "enablePagination": true
+            },
+            "filter": null,
+            "mapper": {},
+            "metadata": {
+                "designer": {
+                    "x": 0,
+                    "y": 0,
+                    "name": "Slack #soporte"
+                },
+                "restore": {
+                    "parameters": {
+                        "__IMTCONN__": {
+                            "label": "My Slack (user) connection"
+                        },
+                        "inputMethod": {
+                            "mode": "chose",
+                            "label": "Select from a list",
+                            "nested": [
+                                {
+                                    "name": "channel",
+                                    "type": "select",
+                                    "label": "Public Channel",
+                                    "options": "rpc://slack@4/PublicChannels",
+                                    "required": true
+                                }
+                            ]
+                        },
+                        "channel": {
+                            "mode": "chose",
+                            "label": "soporte"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "on": {
+                            "change": "reset_epoch"
+                        },
+                        "name": "__IMTCONN__",
+                        "type": "account:slack2",
+                        "label": "Connection",
+                        "required": true
+                    },
+                    {
+                        "name": "inputMethod",
+                        "type": "select",
+                        "label": "Input Method",
+                        "default": "list",
+                        "required": true,
+                        "validate": {
+                            "enum": [
+                                "list",
+                                "search"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "channel",
+                        "type": "select",
+                        "label": "Public Channel",
+                        "required": true
+                    },
+                    {
+                        "name": "limit",
+                        "type": "uinteger",
+                        "label": "Limit",
+                        "default": 2,
+                        "required": true
+                    },
+                    {
+                        "name": "enablePagination",
+                        "type": "boolean",
+                        "label": "Enable pagination",
+                        "default": true,
+                        "advanced": true,
+                        "required": true
+                    }
+                ]
+            }
+        },
+        {
+            "id": 4,
+            "module": "airtable:ActionSearchRecords",
+            "version": 3,
+            "parameters": {
+                "__IMTCONN__": 10045607
+            },
+            "filter": {
+                "name": "Solo mensajes de usuario",
+                "conditions": [
+                    [
+                        {
+                            "a": "{{3.type}}",
+                            "o": "text:equal",
+                            "b": "message"
+                        },
+                        {
+                            "a": "{{3.bot_id}}",
+                            "o": "notexist",
+                            "b": null
+                        },
+                        {
+                            "a": "{{3.subtype}}",
+                            "o": "notexist",
+                            "b": null
+                        }
+                    ],
+                    [
+                        {
+                            "a": "{{3.type}}",
+                            "o": "text:equal",
+                            "b": "message"
+                        },
+                        {
+                            "a": "{{3.bot_id}}",
+                            "o": "notexist",
+                            "b": null
+                        },
+                        {
+                            "a": "{{3.subtype}}",
+                            "o": "text:equal",
+                            "b": ""
+                        }
+                    ]
+                ]
+            },
+            "mapper": {
+                "base": "appmiWpw6A0qBryU7",
+                "table": "tblMwU3FSItEHfVRw",
+                "fields": [
+                    "Problemas"
+                ],
+                "formula": "",
+                "maxRecords": 100,
+                "useColumnId": false
+            },
+            "metadata": {
+                "designer": {
+                    "x": 300,
+                    "y": 0,
+                    "name": "Airtable Problemas"
+                },
+                "restore": {
+                    "parameters": {
+                        "__IMTCONN__": {
+                            "label": "My Airtable OAuth connection"
+                        }
+                    },
+                    "expect": {
+                        "base": {
+                            "mode": "chose",
+                            "label": "Base soporte tecnico"
+                        },
+                        "table": {
+                            "mode": "chose",
+                            "label": "Posibles problemas"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "__IMTCONN__",
+                        "type": "account:airtable3,airtable2",
+                        "label": "Connection",
+                        "required": true
+                    }
+                ],
+                "expect": [
+                    {
+                        "name": "base",
+                        "type": "select",
+                        "label": "Base",
+                        "required": true
+                    },
+                    {
+                        "name": "table",
+                        "type": "select",
+                        "label": "Table",
+                        "required": true
+                    },
+                    {
+                        "name": "sort",
+                        "spec": [
+                            {
+                                "name": "field",
+                                "type": "select",
+                                "label": "Field"
+                            },
+                            {
+                                "name": "direction",
+                                "type": "select",
+                                "label": "Direction",
+                                "validate": {
+                                    "enum": [
+                                        "desc",
+                                        "asc"
+                                    ]
+                                }
+                            }
+                        ],
+                        "type": "array",
+                        "label": "Sort"
+                    },
+                    {
+                        "name": "view",
+                        "type": "select",
+                        "label": "View"
+                    },
+                    {
+                        "name": "fields",
+                        "type": "select",
+                        "label": "Output Fields",
+                        "multiple": true
+                    },
+                    {
+                        "name": "formula",
+                        "type": "text",
+                        "label": "Formula"
+                    },
+                    {
+                        "name": "maxRecords",
+                        "type": "integer",
+                        "label": "Limit",
+                        "default": 10
+                    },
+                    {
+                        "name": "useColumnId",
+                        "type": "boolean",
+                        "label": "Use Column ID",
+                        "default": false,
+                        "advanced": true,
+                        "required": true
+                    }
+                ],
+                "interface": [
+                    {
+                        "name": "__IMTLENGTH__",
+                        "label": "Total number of bundles",
+                        "type": "uinteger"
+                    },
+                    {
+                        "name": "__IMTINDEX__",
+                        "label": "Bundle order position",
+                        "type": "uinteger"
+                    },
+                    {
+                        "name": "id",
+                        "type": "text",
+                        "label": "ID"
+                    },
+                    {
+                        "name": "createdTime",
+                        "type": "date",
+                        "label": "Created Time"
+                    },
+                    {
+                        "name": "Problemas",
+                        "label": "Problemas",
+                        "type": "text"
+                    }
+                ]
+            }
+        },
+        {
+            "id": 5,
+            "module": "util:TextAggregator",
+            "version": 1,
+            "parameters": {
+                "rowSeparator": "\n",
+                "feeder": 4
+            },
+            "mapper": {
+                "value": "- {{4.Problemas}}"
+            },
+            "metadata": {
+                "designer": {
+                    "x": 600,
+                    "y": 0,
+                    "name": "Lista Problemas"
+                },
+                "restore": {
+                    "parameters": {
+                        "rowSeparator": {
+                            "mode": "chose",
+                            "label": "New row"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "rowSeparator",
+                        "label": "Row separator",
+                        "type": "select",
+                        "required": false,
+                        "advanced": true,
+                        "validate": {
+                            "enum": [
+                                "\n",
+                                "\t",
+                                "other"
+                            ]
+                        }
+                    }
+                ],
+                "expect": [
+                    {
+                        "name": "value",
+                        "type": "text",
+                        "label": "Text"
+                    }
+                ]
+            },
+            "flags": {
+                "stopIfEmpty": true
+            }
+        },
+        {
+            "id": 6,
+            "module": "gemini-ai:createACompletionGeminiPro",
+            "version": 1,
+            "parameters": {
+                "__IMTCONN__": 10092163
+            },
+            "mapper": {
+                "model": "gemini-3.5-flash",
+                "contents": [
+                    {
+                        "role": "user",
+                        "parts": [
+                            {
+                                "type": "text",
+                                "text": "Sos un asistente de soporte. Vas a clasificar el siguiente mensaje de Slack en prioridad y redactar una respuesta.\n\nREGLAS:\n- Si el mensaje dice “urgente”, “urgencia”, o equivalente => prioridad = \"ALTA\" y enviarEmail = true.\n- Si menciona que necesita la solución \"hoy\" o \"en el transcurso del día\" => prioridad = \"MEDIA\" y enviarEmail = false.\n- Si es una consulta / dudas técnicas => prioridad = \"BAJA\" y enviarEmail = false.\n- Si NO es un problema técnico (por ejemplo estado de pago, horarios, etc.) => prioridad = \"NO_CORRESPONDE\" y la respuesta debe indicar que no es el canal correcto y que vaya a #consultas.\n\nLISTADO DE POSIBLES PROBLEMAS (Airtable):\n{{5.text}}\n\nMENSAJE DEL USUARIO (Slack #soporte):\n{{3.text}}\n\nRespondé SOLO en JSON válido (sin markdown) con este formato:\n{\n  \"prioridad\": \"ALTA|MEDIA|BAJA|NO_CORRESPONDE\",\n  \"enviarEmail\": true|false,\n  \"respuestaSlack\": \"texto listo para pegar en Slack\"\n}\n\nEn \"respuestaSlack\":\n- Si prioridad = ALTA/MEDIA/BAJA: debe empezar con \"Prioridad: <X>\" y luego una línea de respuesta breve.\n- Si prioridad = NO_CORRESPONDE: indicar que debe escribir en #consultas.\n"
+                            }
+                        ]
+                    }
+                ],
+                "generationConfig": {
+                    "temperature": 0.2
+                }
+            },
+            "metadata": {
+                "designer": {
+                    "x": 900,
+                    "y": 0,
+                    "name": "Gemini Clasifica"
+                },
+                "restore": {
+                    "parameters": {
+                        "__IMTCONN__": {
+                            "label": "Fede's Gemini AI connection"
+                        }
+                    },
+                    "expect": {
+                        "model": {
+                            "mode": "chose",
+                            "label": "Gemini 3.5 Flash"
+                        },
+                        "contents": {
+                            "items": [
+                                {
+                                    "role": {
+                                        "mode": "chose",
+                                        "label": "User"
+                                    },
+                                    "parts": {
+                                        "items": [
+                                            {
+                                                "type": {
+                                                    "mode": "chose",
+                                                    "label": "Text",
+                                                    "nested": [
+                                                        {
+                                                            "name": "text",
+                                                            "type": "text",
+                                                            "label": "Text",
+                                                            "required": true
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        ],
+                                        "mode": "chose"
+                                    }
+                                }
+                            ],
+                            "mode": "chose"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "__IMTCONN__",
+                        "type": "account:gemini-ai-q9zyjp",
+                        "label": "Connection",
+                        "required": true
+                    }
+                ],
+                "expect": [
+                    {
+                        "name": "model",
+                        "type": "select",
+                        "label": "AI Model",
+                        "dynamic": true,
+                        "grouped": true,
+                        "required": true
+                    },
+                    {
+                        "name": "contents",
+                        "spec": [
+                            {
+                                "name": "role",
+                                "type": "select",
+                                "label": "Role",
+                                "required": true,
+                                "validate": {
+                                    "enum": [
+                                        "user",
+                                        "model"
+                                    ]
+                                }
+                            },
+                            {
+                                "name": "parts",
+                                "spec": [
+                                    {
+                                        "name": "type",
+                                        "type": "select",
+                                        "label": "Message Type",
+                                        "required": true,
+                                        "validate": {
+                                            "enum": [
+                                                "text",
+                                                "file",
+                                                "functionCall",
+                                                "functionResponse"
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "name": "thoughtSignature",
+                                        "type": "text",
+                                        "label": "Thought Signature"
+                                    }
+                                ],
+                                "type": "array",
+                                "label": "Parts",
+                                "required": true
+                            }
+                        ],
+                        "type": "array",
+                        "label": "Messages",
+                        "required": true
+                    },
+                    {
+                        "name": "system_instruction",
+                        "spec": [
+                            {
+                                "name": "parts",
+                                "spec": {
+                                    "spec": [
+                                        {
+                                            "name": "text",
+                                            "type": "text",
+                                            "label": "Value"
+                                        }
+                                    ],
+                                    "type": "collection",
+                                    "label": "Prompt"
+                                },
+                                "type": "array",
+                                "label": "Prompts",
+                                "labels": {
+                                    "add": "Add a System Prompt"
+                                }
+                            }
+                        ],
+                        "type": "collection",
+                        "label": "System Instructions"
+                    },
+                    {
+                        "name": "safetySettings",
+                        "spec": [
+                            {
+                                "name": "category",
+                                "type": "select",
+                                "label": "Category",
+                                "validate": {
+                                    "enum": [
+                                        "HARM_CATEGORY_HARASSMENT",
+                                        "HARM_CATEGORY_HATE_SPEECH",
+                                        "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+                                        "HARM_CATEGORY_DANGEROUS_CONTENT"
+                                    ]
+                                }
+                            },
+                            {
+                                "name": "threshold",
+                                "type": "select",
+                                "label": "Threshold",
+                                "validate": {
+                                    "enum": [
+                                        "BLOCK_LOW_AND_ABOVE",
+                                        "BLOCK_MEDIUM_AND_ABOVE",
+                                        "BLOCK_ONLY_HIGH",
+                                        "BLOCK_NONE"
+                                    ]
+                                }
+                            }
+                        ],
+                        "type": "array",
+                        "label": "Safety Settings",
+                        "advanced": true,
+                        "required": false
+                    },
+                    {
+                        "name": "generationConfig",
+                        "spec": [
+                            {
+                                "name": "stopSequences",
+                                "spec": {
+                                    "type": "text",
+                                    "label": "Stop Sequence"
+                                },
+                                "type": "array",
+                                "label": "Stop Sequences",
+                                "advanced": true,
+                                "required": false
+                            },
+                            {
+                                "name": "responseModalities",
+                                "type": "select",
+                                "label": "Response Modalities",
+                                "advanced": false,
+                                "multiple": true,
+                                "required": false,
+                                "validate": {
+                                    "enum": [
+                                        "text",
+                                        "image"
+                                    ]
+                                }
+                            },
+                            {
+                                "name": "maxOutputTokens",
+                                "type": "number",
+                                "label": "Max Output Tokens",
+                                "advanced": true,
+                                "required": false
+                            },
+                            {
+                                "name": "temperature",
+                                "type": "number",
+                                "label": "Temperature",
+                                "advanced": true,
+                                "required": false,
+                                "validate": {
+                                    "max": 1,
+                                    "min": 0
+                                }
+                            },
+                            {
+                                "name": "topP",
+                                "type": "number",
+                                "label": "Top P",
+                                "advanced": true,
+                                "required": false,
+                                "validate": {
+                                    "max": 1,
+                                    "min": 0
+                                }
+                            },
+                            {
+                                "name": "topK",
+                                "type": "number",
+                                "label": "Top K",
+                                "advanced": true,
+                                "required": false
+                            },
+                            {
+                                "name": "thinkingConfig",
+                                "spec": [
+                                    {
+                                        "name": "thinkingBudget",
+                                        "type": "number",
+                                        "label": "Thinking Budget",
+                                        "advanced": true,
+                                        "required": false
+                                    },
+                                    {
+                                        "name": "include_thoughts",
+                                        "type": "boolean",
+                                        "label": "Include Thoughts",
+                                        "advanced": true,
+                                        "required": false
+                                    },
+                                    {
+                                        "name": "thinking_level",
+                                        "type": "select",
+                                        "label": "Thinking Level",
+                                        "validate": {
+                                            "enum": [
+                                                "low",
+                                                "high"
+                                            ]
+                                        }
+                                    }
+                                ],
+                                "type": "collection",
+                                "label": "Thinking Config",
+                                "advanced": true
+                            },
+                            {
+                                "name": "mediaResolution",
+                                "type": "select",
+                                "label": "Media Resolution",
+                                "validate": {
+                                    "enum": [
+                                        "media_resolution_low",
+                                        "media_resolution_medium",
+                                        "media_resolution_high"
+                                    ]
+                                }
+                            },
+                            {
+                                "name": "imageConfig",
+                                "spec": [
+                                    {
+                                        "name": "imageSize",
+                                        "type": "select",
+                                        "label": "Image Size",
+                                        "validate": {
+                                            "enum": [
+                                                "1K",
+                                                "2K",
+                                                "4K"
+                                            ]
+                                        }
+                                    }
+                                ],
+                                "type": "collection",
+                                "label": "Image Configuration"
+                            },
+                            {
+                                "name": "responseMimeType",
+                                "type": "select",
+                                "label": "Response Format",
+                                "dynamic": true,
+                                "advanced": true,
+                                "required": false,
+                                "validate": {
+                                    "enum": [
+                                        "application/json"
+                                    ]
+                                }
+                            }
+                        ],
+                        "type": "collection",
+                        "label": "Generation configurations",
+                        "advanced": false
+                    },
+                    {
+                        "name": "tools",
+                        "type": "any",
+                        "label": "Tools",
+                        "advanced": true
+                    },
+                    {
+                        "name": "tool_config",
+                        "type": "any",
+                        "label": "Tool Config",
+                        "advanced": true
+                    },
+                    {
+                        "name": "function_declarations_context",
+                        "type": "boolean",
+                        "label": "Function Declarations Grounding"
+                    },
+                    {
+                        "name": "url_context",
+                        "type": "boolean",
+                        "label": "URL Context",
+                        "required": false
+                    },
+                    {
+                        "name": "google_search_context",
+                        "type": "boolean",
+                        "label": "Google Search Grounding",
+                        "required": false
+                    },
+                    {
+                        "name": "code_execution",
+                        "type": "boolean",
+                        "label": "Code Execution",
+                        "required": false
+                    },
+                    {
+                        "name": "google_maps_context",
+                        "type": "boolean",
+                        "label": "Google Maps Grounding",
+                        "required": false
+                    },
+                    {
+                        "name": "file_search_store_context",
+                        "type": "boolean",
+                        "label": "File Search Store Context",
+                        "required": false
+                    },
+                    {
+                        "name": "serviceTier",
+                        "type": "select",
+                        "label": "Inference Service Tier",
+                        "dynamic": true,
+                        "advanced": true,
+                        "validate": {
+                            "enum": [
+                                "priority",
+                                "flex"
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": 7,
+            "module": "json:ParseJSON",
+            "version": 1,
+            "parameters": {
+                "type": 438910
+            },
+            "mapper": {
+                "json": "{{6.candidates[1].content.parts[1].text}}"
+            },
+            "metadata": {
+                "designer": {
+                    "x": 1200,
+                    "y": 0,
+                    "name": "Parse JSON"
+                },
+                "restore": {
+                    "parameters": {
+                        "type": {
+                            "label": "Gemini Soporte Output"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "type",
+                        "label": "Data structure",
+                        "type": "udt"
+                    }
+                ],
+                "expect": [
+                    {
+                        "name": "json",
+                        "label": "JSON string",
+                        "type": "text",
+                        "required": true
+                    }
+                ],
+                "interface": [
+                    {
+                        "name": "prioridad",
+                        "type": "text",
+                        "label": "prioridad",
+                        "required": true
+                    },
+                    {
+                        "name": "enviarEmail",
+                        "type": "boolean",
+                        "label": "enviarEmail",
+                        "required": true
+                    },
+                    {
+                        "name": "respuestaSlack",
+                        "type": "text",
+                        "label": "respuestaSlack",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        {
+            "id": 10,
+            "module": "airtable:ActionCreateRecord",
+            "version": 3,
+            "parameters": {
+                "__IMTCONN__": 10045607
+            },
+            "filter": null,
+            "mapper": {
+                "base": "appmiWpw6A0qBryU7",
+                "table": "tblaPsx7SGvNmnZtK",
+                "record": {
+                    "fldHtBxbg3L0183s2": "{{now}}",
+                    "fldXMYwOL9uu4p3hK": "{{7.prioridad}}",
+                    "fld7c6YfekoOy4SPj": "{{3.text}}",
+                    "flddsAbcTJzQtzZTS": "PROCESADO POR IA"
+                },
+                "typecast": false,
+                "useColumnId": false
+            },
+            "metadata": {
+                "designer": {
+                    "x": 1500,
+                    "y": 0
+                },
+                "restore": {
+                    "parameters": {
+                        "__IMTCONN__": {
+                            "label": "My Airtable OAuth connection"
+                        }
+                    },
+                    "expect": {
+                        "base": {
+                            "mode": "chose",
+                            "label": "Base soporte tecnico"
+                        },
+                        "table": {
+                            "mode": "chose",
+                            "label": "Tabla de registros"
+                        },
+                        "record": {
+                            "nested": {
+                                "flddsAbcTJzQtzZTS": {
+                                    "mode": "chose",
+                                    "label": "PROCESADO POR IA"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "__IMTCONN__",
+                        "type": "account:airtable3,airtable2",
+                        "label": "Connection",
+                        "required": true
+                    }
+                ],
+                "expect": [
+                    {
+                        "name": "base",
+                        "type": "select",
+                        "label": "Base",
+                        "mappable": false,
+                        "required": true
+                    },
+                    {
+                        "name": "table",
+                        "type": "select",
+                        "label": "Table",
+                        "mappable": false,
+                        "required": true
+                    },
+                    {
+                        "name": "record",
+                        "spec": [
+                            {
+                                "name": "fldHtBxbg3L0183s2",
+                                "label": "Fecha",
+                                "type": "date",
+                                "time": false
+                            },
+                            {
+                                "name": "fld7c6YfekoOy4SPj",
+                                "label": "Problema",
+                                "type": "text"
+                            },
+                            {
+                                "name": "fldXMYwOL9uu4p3hK",
+                                "label": "Prioridad",
+                                "type": "text"
+                            },
+                            {
+                                "name": "flddsAbcTJzQtzZTS",
+                                "label": "Estado",
+                                "type": "select",
+                                "mode": "edit",
+                                "dynamic": true,
+                                "validate": {
+                                    "enum": [
+                                        "PENDIENTE",
+                                        "PROCESADO POR IA",
+                                        "APROBADO POR HUMANO"
+                                    ]
+                                }
+                            }
+                        ],
+                        "type": "collection",
+                        "label": "Record"
+                    },
+                    {
+                        "name": "typecast",
+                        "type": "boolean",
+                        "label": "Smart links",
+                        "default": false,
+                        "required": true
+                    },
+                    {
+                        "name": "useColumnId",
+                        "type": "boolean",
+                        "label": "Use Column ID",
+                        "default": false,
+                        "advanced": true,
+                        "required": true
+                    }
+                ],
+                "interface": [
+                    {
+                        "name": "id",
+                        "type": "text",
+                        "label": "ID"
+                    },
+                    {
+                        "name": "createdTime",
+                        "type": "date",
+                        "label": "Created Time"
+                    },
+                    {
+                        "name": "Fecha",
+                        "label": "Fecha",
+                        "type": "date",
+                        "time": false
+                    },
+                    {
+                        "name": "Problema",
+                        "label": "Problema",
+                        "type": "text",
+                        "multiline": true
+                    },
+                    {
+                        "name": "Prioridad",
+                        "label": "Prioridad",
+                        "type": "text"
+                    },
+                    {
+                        "name": "Estado",
+                        "label": "Estado",
+                        "type": "text"
+                    }
+                ]
+            }
+        },
+        {
+            "id": 8,
+            "module": "slack:CreateMessage",
+            "version": 4,
+            "parameters": {
+                "__IMTCONN__": 10034788
+            },
+            "mapper": {
+                "channelWType": "manualy",
+                "channel": "C0BKV3YJU5N",
+                "text": "{{7.respuestaSlack}}",
+                "thread_ts": "{{3.ts}}",
+                "mrkdwn": true,
+                "parse": false
+            },
+            "metadata": {
+                "designer": {
+                    "x": 1800,
+                    "y": 0,
+                    "name": "Responder en hilo"
+                },
+                "restore": {
+                    "parameters": {
+                        "__IMTCONN__": {
+                            "label": "My Slack (user) connection"
+                        }
+                    },
+                    "expect": {
+                        "channelWType": {
+                            "mode": "chose",
+                            "label": "Enter manually",
+                            "nested": [
+                                {
+                                    "help": "You must specify a public channel, private channel, or a direct message. You can either pass the channel's name (#general) or encoded ID (C0123BE12L).",
+                                    "name": "channel",
+                                    "type": "text",
+                                    "label": "Channel ID or name",
+                                    "required": true
+                                }
+                            ]
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "__IMTCONN__",
+                        "type": "account:slack2,slack3",
+                        "label": "Connection",
+                        "required": true
+                    }
+                ],
+                "expect": [
+                    {
+                        "name": "channelWType",
+                        "type": "select",
+                        "label": "Enter a channel ID or name",
+                        "mappable": false,
+                        "required": true,
+                        "validate": {
+                            "enum": [
+                                "manualy",
+                                "list"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "channel",
+                        "type": "text",
+                        "label": "Channel ID or name",
+                        "required": true
+                    },
+                    {
+                        "name": "text",
+                        "type": "text",
+                        "label": "Text",
+                        "required": false
+                    },
+                    {
+                        "name": "blocks",
+                        "type": "text",
+                        "label": "Blocks",
+                        "required": false
+                    },
+                    {
+                        "name": "thread_ts",
+                        "type": "text",
+                        "label": "Thread message ID (time stamp)",
+                        "advanced": true,
+                        "required": false
+                    },
+                    {
+                        "name": "reply_broadcast",
+                        "type": "boolean",
+                        "label": "Reply broadcast",
+                        "advanced": true,
+                        "required": false
+                    },
+                    {
+                        "name": "link_names",
+                        "type": "boolean",
+                        "label": "Link names",
+                        "advanced": true,
+                        "required": false
+                    },
+                    {
+                        "name": "parse",
+                        "type": "boolean",
+                        "label": "Parse message text",
+                        "default": false,
+                        "advanced": true,
+                        "required": false
+                    },
+                    {
+                        "name": "mrkdwn",
+                        "type": "boolean",
+                        "label": "Use markdown",
+                        "default": true,
+                        "advanced": true,
+                        "required": false
+                    },
+                    {
+                        "name": "unfurl_links",
+                        "type": "boolean",
+                        "label": "Unfurl primarily text-based content",
+                        "advanced": true,
+                        "required": false
+                    },
+                    {
+                        "name": "unfurl_media",
+                        "type": "boolean",
+                        "label": "Unfurl media content",
+                        "advanced": true,
+                        "required": false
+                    },
+                    {
+                        "name": "icon_emoji",
+                        "type": "text",
+                        "label": "Icon emoji",
+                        "advanced": true,
+                        "required": false
+                    },
+                    {
+                        "name": "icon_url",
+                        "type": "url",
+                        "label": "Icon url",
+                        "advanced": true,
+                        "required": false
+                    },
+                    {
+                        "name": "username",
+                        "type": "text",
+                        "label": "User name",
+                        "advanced": true,
+                        "required": false
+                    }
+                ]
+            }
+        },
+        {
+            "id": 11,
+            "module": "slack:CreateMessage",
+            "version": 4,
+            "parameters": {
+                "__IMTCONN__": 10034788
+            },
+            "filter": {
+                "name": "Solo prioridad ALTA",
+                "conditions": [
+                    [
+                        {
+                            "a": "{{7.prioridad}}",
+                            "o": "text:equal",
+                            "b": "ALTA"
+                        }
+                    ]
+                ]
+            },
+            "mapper": {
+                "channelWType": "manualy",
+                "channel": "C0BKV3YJU5N",
+                "text": "🚨 *Validación humana requerida* (10 min)\nGemini clasificó este caso como *ALTA*.\n\nRespondé en este hilo con una de estas opciones:\n- *APROBAR* (se envía aviso urgente por email)\n- *MEDIA* (se baja a prioridad media y NO se envía email)\n\nMensaje original:\n{{3.text}}",
+                "thread_ts": "{{3.ts}}",
+                "mrkdwn": true,
+                "parse": false
+            },
+            "metadata": {
+                "designer": {
+                    "x": 2100,
+                    "y": 0
+                },
+                "restore": {
+                    "parameters": {
+                        "__IMTCONN__": {
+                            "label": "My Slack (user) connection"
+                        }
+                    },
+                    "expect": {
+                        "channelWType": {
+                            "mode": "chose",
+                            "label": "Enter manually",
+                            "nested": [
+                                {
+                                    "help": "You must specify a public channel, private channel, or a direct message. You can either pass the channel's name (#general) or encoded ID (C0123BE12L).",
+                                    "name": "channel",
+                                    "type": "text",
+                                    "label": "Channel ID or name",
+                                    "required": true
+                                }
+                            ]
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "__IMTCONN__",
+                        "type": "account:slack2,slack3",
+                        "label": "Connection",
+                        "required": true
+                    }
+                ],
+                "expect": [
+                    {
+                        "name": "channelWType",
+                        "type": "select",
+                        "label": "Enter a channel ID or name",
+                        "mappable": false,
+                        "required": true,
+                        "validate": {
+                            "enum": [
+                                "manualy",
+                                "list"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "channel",
+                        "type": "text",
+                        "label": "Channel ID or name",
+                        "required": true
+                    },
+                    {
+                        "name": "text",
+                        "type": "text",
+                        "label": "Text",
+                        "required": false
+                    },
+                    {
+                        "name": "blocks",
+                        "type": "text",
+                        "label": "Blocks",
+                        "required": false
+                    },
+                    {
+                        "name": "thread_ts",
+                        "type": "text",
+                        "label": "Thread message ID (time stamp)",
+                        "advanced": true,
+                        "required": false
+                    },
+                    {
+                        "name": "reply_broadcast",
+                        "type": "boolean",
+                        "label": "Reply broadcast",
+                        "advanced": true,
+                        "required": false
+                    },
+                    {
+                        "name": "link_names",
+                        "type": "boolean",
+                        "label": "Link names",
+                        "advanced": true,
+                        "required": false
+                    },
+                    {
+                        "name": "parse",
+                        "type": "boolean",
+                        "label": "Parse message text",
+                        "default": false,
+                        "advanced": true,
+                        "required": false
+                    },
+                    {
+                        "name": "mrkdwn",
+                        "type": "boolean",
+                        "label": "Use markdown",
+                        "default": true,
+                        "advanced": true,
+                        "required": false
+                    },
+                    {
+                        "name": "unfurl_links",
+                        "type": "boolean",
+                        "label": "Unfurl primarily text-based content",
+                        "advanced": true,
+                        "required": false
+                    },
+                    {
+                        "name": "unfurl_media",
+                        "type": "boolean",
+                        "label": "Unfurl media content",
+                        "advanced": true,
+                        "required": false
+                    },
+                    {
+                        "name": "icon_emoji",
+                        "type": "text",
+                        "label": "Icon emoji",
+                        "advanced": true,
+                        "required": false
+                    },
+                    {
+                        "name": "icon_url",
+                        "type": "url",
+                        "label": "Icon url",
+                        "advanced": true,
+                        "required": false
+                    },
+                    {
+                        "name": "username",
+                        "type": "text",
+                        "label": "User name",
+                        "advanced": true,
+                        "required": false
+                    }
+                ]
+            }
+        },
+        {
+            "id": 13,
+            "module": "util:FunctionSleep",
+            "version": 1,
+            "parameters": {},
+            "filter": null,
+            "mapper": {
+                "duration": "60"
+            },
+            "metadata": {
+                "designer": {
+                    "x": 2400,
+                    "y": 0
+                },
+                "restore": {},
+                "expect": [
+                    {
+                        "name": "duration",
+                        "type": "uinteger",
+                        "label": "Delay",
+                        "validate": {
+                            "min": 1,
+                            "max": 300
+                        },
+                        "required": true
+                    }
+                ]
+            }
+        },
+        {
+            "id": 17,
+            "module": "util:FunctionSleep",
+            "version": 1,
+            "parameters": {},
+            "filter": null,
+            "mapper": {
+                "duration": "60"
+            },
+            "metadata": {
+                "designer": {
+                    "x": 2700,
+                    "y": 0
+                },
+                "restore": {},
+                "expect": [
+                    {
+                        "name": "duration",
+                        "type": "uinteger",
+                        "label": "Delay",
+                        "validate": {
+                            "min": 1,
+                            "max": 300
+                        },
+                        "required": true
+                    }
+                ]
+            }
+        },
+        {
+            "id": 14,
+            "module": "slack:ListReplies",
+            "version": 4,
+            "parameters": {
+                "__IMTCONN__": 10034788
+            },
+            "mapper": {
+                "channelType": "public",
+                "channel": "C0BKV3YJU5N",
+                "ts": "{{3.ts}}",
+                "limit": 50,
+                "inclusiveTs": true,
+                "enablePagination": true
+            },
+            "metadata": {
+                "designer": {
+                    "x": 3000,
+                    "y": 0
+                },
+                "restore": {
+                    "parameters": {
+                        "__IMTCONN__": {
+                            "label": "My Slack (user) connection"
+                        }
+                    },
+                    "expect": {
+                        "channelType": {
+                            "mode": "chose",
+                            "label": "Public channel",
+                            "nested": [
+                                {
+                                    "name": "channel",
+                                    "type": "select",
+                                    "label": "Public channel",
+                                    "options": "rpc://slack@4/PublicChannels",
+                                    "required": true
+                                }
+                            ]
+                        },
+                        "channel": {
+                            "mode": "chose",
+                            "label": "soporte"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "__IMTCONN__",
+                        "type": "account:slack2",
+                        "label": "Connection",
+                        "required": true
+                    }
+                ],
+                "expect": [
+                    {
+                        "name": "channelType",
+                        "type": "select",
+                        "label": "Channel type",
+                        "mappable": false,
+                        "required": true,
+                        "validate": {
+                            "enum": [
+                                "public",
+                                "private",
+                                "im",
+                                "mpim"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "channel",
+                        "type": "select",
+                        "label": "Public channel",
+                        "required": true
+                    },
+                    {
+                        "name": "ts",
+                        "type": "text",
+                        "label": "Parent message ID (timestamp)",
+                        "required": true
+                    },
+                    {
+                        "name": "limit",
+                        "type": "uinteger",
+                        "label": "Limit",
+                        "default": 2,
+                        "required": true
+                    },
+                    {
+                        "name": "fromTs",
+                        "type": "text",
+                        "label": "From (timestamp)",
+                        "advanced": true
+                    },
+                    {
+                        "name": "toTs",
+                        "type": "text",
+                        "label": "To (timestamp)",
+                        "advanced": true
+                    },
+                    {
+                        "name": "inclusiveTs",
+                        "type": "boolean",
+                        "label": "Inclusive To and From",
+                        "advanced": true,
+                        "required": true
+                    },
+                    {
+                        "name": "enablePagination",
+                        "type": "boolean",
+                        "label": "Enable pagination",
+                        "default": true,
+                        "advanced": true,
+                        "required": true
+                    }
+                ]
+            }
+        },
+        {
+            "id": 15,
+            "module": "util:TextAggregator",
+            "version": 1,
+            "parameters": {
+                "rowSeparator": "\n",
+                "feeder": 14
+            },
+            "filter": null,
+            "mapper": {
+                "value": "{{14.text}}"
+            },
+            "metadata": {
+                "designer": {
+                    "x": 3300,
+                    "y": 0
+                },
+                "restore": {
+                    "parameters": {
+                        "rowSeparator": {
+                            "mode": "chose",
+                            "label": "New row"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "rowSeparator",
+                        "label": "Row separator",
+                        "type": "select",
+                        "required": false,
+                        "advanced": true,
+                        "validate": {
+                            "enum": [
+                                "\n",
+                                "\t",
+                                "other"
+                            ]
+                        }
+                    }
+                ],
+                "expect": [
+                    {
+                        "name": "value",
+                        "type": "text",
+                        "label": "Text"
+                    }
+                ]
+            },
+            "flags": {
+                "stopIfEmpty": true
+            }
+        },
+        {
+            "id": 16,
+            "module": "airtable:ActionUpdateRecords",
+            "version": 3,
+            "parameters": {
+                "__IMTCONN__": 10045607
+            },
+            "filter": null,
+            "mapper": {
+                "base": "appmiWpw6A0qBryU7",
+                "table": "tblaPsx7SGvNmnZtK",
+                "id": "{{10.id}}",
+                "record": {
+                    "fldXMYwOL9uu4p3hK": "{{if(contains(upper(15.text); \"APROBAR\"); \"ALTA\"; \"MEDIA\")}}",
+                    "flddsAbcTJzQtzZTS": "{{if(contains(upper(15.text); \"APROBAR\"); \"APROBADO POR HUMANO\"; \"PROCESADO POR IA\")}}"
+                },
+                "typecast": false,
+                "useColumnId": false
+            },
+            "metadata": {
+                "designer": {
+                    "x": 3600,
+                    "y": 0
+                },
+                "restore": {
+                    "parameters": {
+                        "__IMTCONN__": {
+                            "label": "My Airtable OAuth connection"
+                        }
+                    },
+                    "expect": {
+                        "base": {
+                            "mode": "chose",
+                            "label": "Base soporte tecnico"
+                        },
+                        "table": {
+                            "mode": "chose",
+                            "label": "Tabla de registros"
+                        },
+                        "record": {
+                            "nested": {
+                                "flddsAbcTJzQtzZTS": {
+                                    "mode": "edit"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "__IMTCONN__",
+                        "type": "account:airtable3,airtable2",
+                        "label": "Connection",
+                        "required": true
+                    }
+                ],
+                "expect": [
+                    {
+                        "name": "base",
+                        "type": "select",
+                        "label": "Base",
+                        "mappable": false,
+                        "required": true
+                    },
+                    {
+                        "name": "table",
+                        "type": "select",
+                        "label": "Table",
+                        "mappable": false,
+                        "required": true
+                    },
+                    {
+                        "name": "id",
+                        "type": "text",
+                        "label": "Record ID",
+                        "required": true
+                    },
+                    {
+                        "name": "record",
+                        "spec": [
+                            {
+                                "name": "fldHtBxbg3L0183s2",
+                                "label": "Fecha",
+                                "type": "date",
+                                "time": false
+                            },
+                            {
+                                "name": "fld7c6YfekoOy4SPj",
+                                "label": "Problema",
+                                "type": "text"
+                            },
+                            {
+                                "name": "fldXMYwOL9uu4p3hK",
+                                "label": "Prioridad",
+                                "type": "text"
+                            },
+                            {
+                                "name": "flddsAbcTJzQtzZTS",
+                                "label": "Estado",
+                                "type": "select",
+                                "mode": "edit",
+                                "dynamic": true,
+                                "validate": {
+                                    "enum": [
+                                        "PENDIENTE",
+                                        "PROCESADO POR IA",
+                                        "APROBADO POR HUMANO"
+                                    ]
+                                }
+                            }
+                        ],
+                        "type": "collection",
+                        "label": "Record"
+                    },
+                    {
+                        "name": "typecast",
+                        "type": "boolean",
+                        "label": "Smart links",
+                        "default": false,
+                        "required": true
+                    },
+                    {
+                        "name": "useColumnId",
+                        "type": "boolean",
+                        "label": "Use Column ID",
+                        "default": false,
+                        "advanced": true,
+                        "required": true
+                    }
+                ],
+                "interface": [
+                    {
+                        "name": "id",
+                        "type": "text",
+                        "label": "ID"
+                    },
+                    {
+                        "name": "createdTime",
+                        "type": "date",
+                        "label": "Created Time"
+                    },
+                    {
+                        "name": "Fecha",
+                        "label": "Fecha",
+                        "type": "date",
+                        "time": false
+                    },
+                    {
+                        "name": "Problema",
+                        "label": "Problema",
+                        "type": "text",
+                        "multiline": true
+                    },
+                    {
+                        "name": "Prioridad",
+                        "label": "Prioridad",
+                        "type": "text"
+                    },
+                    {
+                        "name": "Estado",
+                        "label": "Estado",
+                        "type": "text"
+                    }
+                ]
+            }
+        },
+        {
+            "id": 9,
+            "module": "google-email:sendAnEmail",
+            "version": 4,
+            "parameters": {
+                "__IMTCONN__": 6901952
+            },
+            "filter": {
+                "name": "Enviar si APROBAR",
+                "conditions": [
+                    [
+                        {
+                            "a": "{{7.prioridad}}",
+                            "o": "text:equal",
+                            "b": "ALTA"
+                        },
+                        {
+                            "a": "{{upper(15.text)}}",
+                            "o": "text:contain",
+                            "b": "APROBAR"
+                        }
+                    ]
+                ]
+            },
+            "mapper": {
+                "to": [
+                    "fedefe666@gmail.com"
+                ],
+                "subject": "[ALTA] Soporte Slack — alerta urgente",
+                "bodyType": "rawHtml",
+                "content": "<p><b>Prioridad:</b> {{7.prioridad}}</p>\n<p><b>Mensaje en #soporte:</b><br>{{3.text}}</p>\n<p><b>Respuesta enviada en Slack:</b><br>{{7.respuestaSlack}}</p>\n<p><b>Timestamp:</b> {{3.ts}}</p>"
+            },
+            "metadata": {
+                "designer": {
+                    "x": 3900,
+                    "y": 0,
+                    "name": "Email ALTA"
+                },
+                "restore": {
+                    "parameters": {
+                        "__IMTCONN__": {
+                            "label": "My Gmail connection"
+                        }
+                    },
+                    "expect": {
+                        "bodyType": {
+                            "mode": "chose",
+                            "label": "Raw HTML",
+                            "nested": [
+                                {
+                                    "help": "You can use complete HTML code.",
+                                    "name": "content",
+                                    "type": "text",
+                                    "label": "Content"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "__IMTCONN__",
+                        "type": "account:google-email",
+                        "label": "Connection",
+                        "required": true
+                    }
+                ],
+                "expect": [
+                    {
+                        "name": "to",
+                        "spec": {
+                            "type": "email",
+                            "label": "Recipient email address",
+                            "required": true,
+                            "validate": true
+                        },
+                        "type": "array",
+                        "label": "To",
+                        "labels": {
+                            "add": "Add recipient",
+                            "edit": "Edit recipient"
+                        },
+                        "required": true
+                    },
+                    {
+                        "name": "subject",
+                        "type": "text",
+                        "label": "Subject"
+                    },
+                    {
+                        "name": "bodyType",
+                        "type": "select",
+                        "label": "Body type",
+                        "mappable": false,
+                        "required": true,
+                        "validate": {
+                            "enum": [
+                                "rawHtml",
+                                "collection"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "content",
+                        "type": "text",
+                        "label": "Content"
+                    },
+                    {
+                        "name": "attachments",
+                        "spec": {
+                            "spec": [
+                                {
+                                    "name": "filename",
+                                    "type": "filename",
+                                    "label": "File name",
+                                    "required": true,
+                                    "semantic": "file:name"
+                                },
+                                {
+                                    "name": "data",
+                                    "type": "buffer",
+                                    "label": "Data",
+                                    "required": true,
+                                    "semantic": "file:data"
+                                }
+                            ],
+                            "type": "collection",
+                            "label": "Attachment"
+                        },
+                        "type": "array",
+                        "label": "Attachments",
+                        "labels": {
+                            "add": "Add attachment",
+                            "edit": "Edit attachment"
+                        }
+                    },
+                    {
+                        "name": "from",
+                        "type": "select",
+                        "label": "From",
+                        "dynamic": true,
+                        "advanced": true
+                    },
+                    {
+                        "name": "cc",
+                        "spec": {
+                            "type": "email",
+                            "label": "Recipient email address"
+                        },
+                        "type": "array",
+                        "label": "CC recipients",
+                        "labels": {
+                            "add": "Add CC recipient",
+                            "edit": "Edit CC recipient"
+                        },
+                        "advanced": true,
+                        "validate": false
+                    },
+                    {
+                        "name": "bcc",
+                        "spec": {
+                            "type": "email",
+                            "label": "Recipient email address"
+                        },
+                        "type": "array",
+                        "label": "BCC recipients",
+                        "labels": {
+                            "add": "Add BCC recipient",
+                            "edit": "Edit BCC recipient"
+                        },
+                        "advanced": true,
+                        "validate": false
+                    },
+                    {
+                        "name": "emailHeaders",
+                        "spec": {
+                            "spec": [
+                                {
+                                    "name": "key",
+                                    "type": "text",
+                                    "label": "Key",
+                                    "required": true
+                                },
+                                {
+                                    "name": "value",
+                                    "type": "text",
+                                    "label": "Value"
+                                }
+                            ],
+                            "type": "collection",
+                            "label": "Email header"
+                        },
+                        "type": "array",
+                        "label": "Additional email headers",
+                        "labels": {
+                            "add": "Add email header"
+                        },
+                        "advanced": true
+                    }
+                ]
+            }
+        }
+    ],
+    "metadata": {
+        "instant": false,
+        "version": 1,
+        "scenario": {
+            "roundtrips": 1,
+            "maxErrors": 3,
+            "autoCommit": true,
+            "autoCommitTriggerLast": true,
+            "sequential": false,
+            "slots": null,
+            "confidential": false,
+            "dataloss": false,
+            "dlq": false,
+            "freshVariables": false
+        },
+        "designer": {
+            "orphans": []
+        },
+        "zone": "us2.make.com",
+        "notes": []
+    }
+}
